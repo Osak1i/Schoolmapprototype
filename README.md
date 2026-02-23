@@ -1,11 +1,5 @@
+  ## Just Run it
 
-  # School Map Prototype
+  Run `npm i` dependencies
 
-  This is a code bundle for School Map Prototype.
-
-  ## Running the code
-
-  Run `npm i` to install the dependencies.
-
-  Run `npm run dev` to start the development server.
-  
+  Run `npm run dev`  start dev server.
