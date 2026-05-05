@@ -36,6 +36,7 @@ function App() {
   const [currentFloor, setCurrentFloor] = useState(1);
   const [mapScale, setMapScale] = useState(1);
   const [mapPosition, setMapPosition] = useState({ x: 0, y: 0 });
+  const [language, setLanguage] = useState<'en' | 'lv'>('en');
 
   const handleRoomClick = (room: Room) => {
     setSelectedRoom(room);
@@ -204,7 +205,12 @@ function App() {
       )}
 
       {/* Menu Drawer */}
-      <MenuDrawer isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <MenuDrawer
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        language={language}
+        onLanguageChange={setLanguage}
+      />
 
       {/* Map Controls - Building, Floor, and Zoom */}
       <MapControls

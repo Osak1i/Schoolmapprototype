@@ -56,8 +56,7 @@ export function MapControls({
               <Building2 className="h-5 w-5 text-white" />
             </div>
             <div className="text-left">
-              <p className="text-[10px] text-[#A5968A] font-semibold uppercase">Building</p>
-              <p className="text-sm font-bold text-[#A82227]">{currentBuildingData?.shortName} - {currentBuildingData?.name}</p>
+              <p className="text-sm font-bold text-[#A82227]">Building</p>
             </div>
             <ChevronDown className={`h-4 w-4 text-[#A82227] transition-transform ${buildingMenuOpen ? 'rotate-180' : ''}`} />
           </button>
@@ -106,8 +105,7 @@ export function MapControls({
               <Layers className="h-5 w-5 text-white" />
             </div>
             <div className="text-left">
-              <p className="text-[10px] text-[#A5968A] font-semibold uppercase">Floor</p>
-              <p className="text-sm font-bold text-[#A82227]">{currentFloorData?.name} - Floor {currentFloor}</p>
+              <p className="text-sm font-bold text-[#A82227]">Floor</p>
             </div>
             <ChevronDown className={`h-4 w-4 text-[#A82227] transition-transform ${floorMenuOpen ? 'rotate-180' : ''}`} />
           </button>

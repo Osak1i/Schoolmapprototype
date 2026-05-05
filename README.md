@@ -1,7 +1,11 @@
-  ## Just Run it
 
-  Run `npm i` dependencies
+  # School Map Prototype
 
-  Run `npm run dev`  start dev server.
+  This is a code bundle for School Map Prototype. The original project is available at https://www.figma.com/design/fBWS3WhT9wiXBT20h03eeV/School-Map-Prototype.
 
-after that fix rtk icon
+  ## Running the code
+
+  Run `npm i` to install the dependencies.
+
+  Run `npm run dev` to start the development server.
+  
