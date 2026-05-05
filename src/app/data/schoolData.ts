@@ -1,7 +1,7 @@
 import { Room, Node, Edge } from '../types/map';
 
 export const rooms: Room[] = [
-  // Left wing
+  // Left wing - Main Building, Floor 1
   {
     id: 'room-101',
     number: '101',
@@ -12,7 +12,9 @@ export const rooms: Room[] = [
     y: 50,
     width: 120,
     height: 80,
-    nodeId: 'node-101'
+    nodeId: 'node-101',
+    building: 'main',
+    floor: 1
   },
   {
     id: 'room-102',
@@ -24,7 +26,9 @@ export const rooms: Room[] = [
     y: 160,
     width: 120,
     height: 80,
-    nodeId: 'node-102'
+    nodeId: 'node-102',
+    building: 'main',
+    floor: 1
   },
   {
     id: 'room-103',
@@ -36,7 +40,9 @@ export const rooms: Room[] = [
     y: 270,
     width: 120,
     height: 80,
-    nodeId: 'node-103'
+    nodeId: 'node-103',
+    building: 'main',
+    floor: 1
   },
   // Center area
   {
@@ -49,7 +55,9 @@ export const rooms: Room[] = [
     y: 50,
     width: 120,
     height: 80,
-    nodeId: 'node-104'
+    nodeId: 'node-104',
+    building: 'main',
+    floor: 1
   },
   {
     id: 'room-105',
@@ -61,7 +69,9 @@ export const rooms: Room[] = [
     y: 160,
     width: 120,
     height: 80,
-    nodeId: 'node-105'
+    nodeId: 'node-105',
+    building: 'main',
+    floor: 1
   },
   {
     id: 'room-106',
@@ -73,7 +83,9 @@ export const rooms: Room[] = [
     y: 270,
     width: 120,
     height: 80,
-    nodeId: 'node-106'
+    nodeId: 'node-106',
+    building: 'main',
+    floor: 1
   },
   // Right wing
   {
@@ -86,7 +98,9 @@ export const rooms: Room[] = [
     y: 50,
     width: 120,
     height: 80,
-    nodeId: 'node-107'
+    nodeId: 'node-107',
+    building: 'main',
+    floor: 1
   },
   {
     id: 'room-108',
@@ -98,7 +112,9 @@ export const rooms: Room[] = [
     y: 160,
     width: 120,
     height: 80,
-    nodeId: 'node-108'
+    nodeId: 'node-108',
+    building: 'main',
+    floor: 1
   },
   {
     id: 'room-109',
@@ -110,69 +126,72 @@ export const rooms: Room[] = [
     y: 270,
     width: 120,
     height: 80,
-    nodeId: 'node-109'
+    nodeId: 'node-109',
+    building: 'main',
+    floor: 1
   }
 ];
 
 // Navigation nodes (including room entry points and hallway intersections)
 export const nodes: Node[] = [
-  // Room nodes
-  { id: 'node-101', x: 170, y: 90, roomId: 'room-101' },
-  { id: 'node-102', x: 170, y: 200, roomId: 'room-102' },
-  { id: 'node-103', x: 170, y: 310, roomId: 'room-103' },
-  { id: 'node-104', x: 300, y: 90, roomId: 'room-104' },
-  { id: 'node-105', x: 300, y: 200, roomId: 'room-105' },
-  { id: 'node-106', x: 300, y: 310, roomId: 'room-106' },
-  { id: 'node-107', x: 550, y: 90, roomId: 'room-107' },
-  { id: 'node-108', x: 550, y: 200, roomId: 'room-108' },
-  { id: 'node-109', x: 550, y: 310, roomId: 'room-109' },
-  
-  // Hallway intersection nodes
-  { id: 'hall-1', x: 230, y: 90 },
-  { id: 'hall-2', x: 230, y: 200 },
-  { id: 'hall-3', x: 230, y: 310 },
-  { id: 'hall-4', x: 420, y: 90 },
-  { id: 'hall-5', x: 420, y: 200 },
-  { id: 'hall-6', x: 420, y: 310 },
-  
-  // Main entrance
-  { id: 'entrance', x: 360, y: 400 }
+  // Room nodes - Main Building Floor 1
+  { id: 'node-101', x: 170, y: 90, roomId: 'room-101', building: 'main', floor: 1 },
+  { id: 'node-102', x: 170, y: 200, roomId: 'room-102', building: 'main', floor: 1 },
+  { id: 'node-103', x: 170, y: 310, roomId: 'room-103', building: 'main', floor: 1 },
+  { id: 'node-104', x: 300, y: 90, roomId: 'room-104', building: 'main', floor: 1 },
+  { id: 'node-105', x: 300, y: 200, roomId: 'room-105', building: 'main', floor: 1 },
+  { id: 'node-106', x: 300, y: 310, roomId: 'room-106', building: 'main', floor: 1 },
+  { id: 'node-107', x: 550, y: 90, roomId: 'room-107', building: 'main', floor: 1 },
+  { id: 'node-108', x: 550, y: 200, roomId: 'room-108', building: 'main', floor: 1 },
+  { id: 'node-109', x: 550, y: 310, roomId: 'room-109', building: 'main', floor: 1 },
+
+  // Hallway intersection nodes - Main Building Floor 1
+  { id: 'hall-1', x: 230, y: 90, building: 'main', floor: 1 },
+  { id: 'hall-2', x: 230, y: 200, building: 'main', floor: 1 },
+  { id: 'hall-3', x: 230, y: 310, building: 'main', floor: 1 },
+  { id: 'hall-4', x: 420, y: 90, building: 'main', floor: 1 },
+  { id: 'hall-5', x: 420, y: 200, building: 'main', floor: 1 },
+  { id: 'hall-6', x: 420, y: 310, building: 'main', floor: 1 },
+
+  // Main entrance - Main Building Floor 0 (Ground Floor)
+  { id: 'entrance', x: 360, y: 400, building: 'main', floor: 0 }
 ];
 
 // Create edges (connections between nodes)
 export const edges: Edge[] = [
-  // Left wing to hallway
-  { from: 'node-101', to: 'hall-1', distance: 60 },
-  { from: 'node-102', to: 'hall-2', distance: 60 },
-  { from: 'node-103', to: 'hall-3', distance: 60 },
-  
-  // Center rooms to hallway
-  { from: 'node-104', to: 'hall-1', distance: 70 },
-  { from: 'node-104', to: 'hall-4', distance: 120 },
-  { from: 'node-105', to: 'hall-2', distance: 70 },
-  { from: 'node-105', to: 'hall-5', distance: 120 },
-  { from: 'node-106', to: 'hall-3', distance: 70 },
-  { from: 'node-106', to: 'hall-6', distance: 120 },
-  
-  // Right wing to hallway
-  { from: 'node-107', to: 'hall-4', distance: 130 },
-  { from: 'node-108', to: 'hall-5', distance: 130 },
-  { from: 'node-109', to: 'hall-6', distance: 130 },
-  
-  // Vertical hallway connections (left)
-  { from: 'hall-1', to: 'hall-2', distance: 110 },
-  { from: 'hall-2', to: 'hall-3', distance: 110 },
-  
-  // Vertical hallway connections (right)
-  { from: 'hall-4', to: 'hall-5', distance: 110 },
-  { from: 'hall-5', to: 'hall-6', distance: 110 },
-  
-  // Horizontal connections
-  { from: 'hall-1', to: 'hall-4', distance: 190 },
-  { from: 'hall-2', to: 'hall-5', distance: 190 },
-  { from: 'hall-3', to: 'hall-6', distance: 190 },
-  
-  // Entrance connections
-  { from: 'entrance', to: 'hall-3', distance: 150 },
-  { from: 'entrance', to: 'hall-6', distance: 150 }
+  // Left wing to hallway - Main Building Floor 1
+  { from: 'node-101', to: 'hall-1', distance: 60, building: 'main', floor: 1 },
+  { from: 'node-102', to: 'hall-2', distance: 60, building: 'main', floor: 1 },
+  { from: 'node-103', to: 'hall-3', distance: 60, building: 'main', floor: 1 },
+
+  // Center rooms to hallway - Main Building Floor 1
+  { from: 'node-104', to: 'hall-1', distance: 70, building: 'main', floor: 1 },
+  { from: 'node-104', to: 'hall-4', distance: 120, building: 'main', floor: 1 },
+  { from: 'node-105', to: 'hall-2', distance: 70, building: 'main', floor: 1 },
+  { from: 'node-105', to: 'hall-5', distance: 120, building: 'main', floor: 1 },
+  { from: 'node-106', to: 'hall-3', distance: 70, building: 'main', floor: 1 },
+  { from: 'node-106', to: 'hall-6', distance: 120, building: 'main', floor: 1 },
+
+  // Right wing to hallway - Main Building Floor 1
+  { from: 'node-107', to: 'hall-4', distance: 130, building: 'main', floor: 1 },
+  { from: 'node-108', to: 'hall-5', distance: 130, building: 'main', floor: 1 },
+  { from: 'node-109', to: 'hall-6', distance: 130, building: 'main', floor: 1 },
+
+  // Vertical hallway connections (left) - Main Building Floor 1
+  { from: 'hall-1', to: 'hall-2', distance: 110, building: 'main', floor: 1 },
+  { from: 'hall-2', to: 'hall-3', distance: 110, building: 'main', floor: 1 },
+
+  // Vertical hallway connections (right) - Main Building Floor 1
+  { from: 'hall-4', to: 'hall-5', distance: 110, building: 'main', floor: 1 },
+  { from: 'hall-5', to: 'hall-6', distance: 110, building: 'main', floor: 1 },
+
+  // Horizontal connections - Main Building Floor 1
+  { from: 'hall-1', to: 'hall-4', distance: 190, building: 'main', floor: 1 },
+  { from: 'hall-2', to: 'hall-5', distance: 190, building: 'main', floor: 1 },
+  { from: 'hall-3', to: 'hall-6', distance: 190, building: 'main', floor: 1 },
+
+  // Entrance connections - Cross-floor connection (Floor 0 to Floor 1)
+  // Note: In a real multi-floor system, these would connect through stairs/elevators
+  { from: 'entrance', to: 'hall-3', distance: 150, building: 'main', floor: 0 },
+  { from: 'entrance', to: 'hall-6', distance: 150, building: 'main', floor: 0 }
 ];

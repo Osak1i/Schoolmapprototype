@@ -7,8 +7,10 @@ import { RoomSelector } from './components/RoomSelector';
 import { MenuDrawer } from './components/MenuDrawer';
 import { MapControls } from './components/MapControls';
 import { rooms, nodes, edges } from './data/schoolData';
+import { getFloorMap } from './data/floorMaps';
 import { Room, PathSegment } from './types/map';
 import { findShortestPath } from './utils/pathfinding';
+import { getTranslation } from './utils/translations';
 
 type SelectorMode = 'start' | 'destination' | null;
 
@@ -147,6 +149,9 @@ function App() {
     highlightedRooms.push(destinationRoom);
   }
 
+  // Get current floor map
+  const currentFloorMap = getFloorMap(currentBuilding, currentFloor);
+
   return (
     <div className="w-screen h-screen relative overflow-hidden bg-gray-100">
       {/* Top Bar */}
@@ -170,6 +175,9 @@ function App() {
           position={mapPosition}
           onScaleChange={setMapScale}
           onPositionChange={setMapPosition}
+          currentBuilding={currentBuilding}
+          currentFloor={currentFloor}
+          floorMap={currentFloorMap}
         />
       </div>
 
@@ -190,6 +198,7 @@ function App() {
           room={selectedRoom}
           onClose={handleCloseRoomInfo}
           onNavigate={handleNavigateToRoom}
+          language={language}
         />
       )}
 
@@ -197,10 +206,11 @@ function App() {
       {selectorMode && (
         <RoomSelector
           rooms={rooms}
-          title={selectorMode === 'start' ? 'Select Starting Point' : 'Select Destination'}
+          title={getTranslation(language, selectorMode === 'start' ? 'selectStartingPoint' : 'selectDestination')}
           onSelect={handleSelectorSelect}
           onClose={handleSelectorClose}
           allowEntrance={selectorMode === 'start'}
+          language={language}
         />
       )}
 

@@ -1,4 +1,4 @@
-import { Room, Node, PathSegment } from '../types/map';
+import { Room, Node, PathSegment, FloorMap } from '../types/map';
 import { useState, useRef, useEffect } from 'react';
 
 interface SchoolMapProps {
@@ -12,24 +12,51 @@ interface SchoolMapProps {
   position: { x: number; y: number };
   onScaleChange: (scale: number) => void;
   onPositionChange: (position: { x: number; y: number }) => void;
+  currentBuilding: string;
+  currentFloor: number;
+  floorMap?: FloorMap;
 }
 
-export function SchoolMap({ 
-  rooms, 
-  nodes, 
-  selectedRoom, 
-  onRoomClick, 
+export function SchoolMap({
+  rooms,
+  nodes,
+  selectedRoom,
+  onRoomClick,
   path,
   highlightedRooms,
   scale,
   position,
   onScaleChange,
-  onPositionChange
+  onPositionChange,
+  currentBuilding,
+  currentFloor,
+  floorMap
 }: SchoolMapProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const lastTouchDistance = useRef<number | null>(null);
+  const [svgContent, setSvgContent] = useState<string | null>(null);
+
+  // Filter rooms and nodes by current building and floor
+  const filteredRooms = rooms.filter(
+    room => room.building === currentBuilding && room.floor === currentFloor
+  );
+  const filteredNodes = nodes.filter(
+    node => node.building === currentBuilding && node.floor === currentFloor
+  );
+
+  // Load SVG map if available
+  useEffect(() => {
+    if (floorMap?.svgPath) {
+      fetch(floorMap.svgPath)
+        .then(res => res.text())
+        .then(data => setSvgContent(data))
+        .catch(err => console.error('Failed to load floor map:', err));
+    } else {
+      setSvgContent(null);
+    }
+  }, [floorMap]);
 
   // Handle wheel zoom
   const handleWheel = (e: React.WheelEvent) => {
@@ -142,16 +169,21 @@ export function SchoolMap({
         }}
       >
         <svg
-          viewBox="0 0 720 450"
+          viewBox={floorMap?.viewBox || "0 0 720 450"}
           className="w-full h-full"
-          style={{ 
-            width: '720px', 
-            height: '450px',
+          style={{
+            width: `${floorMap?.width || 720}px`,
+            height: `${floorMap?.height || 450}px`,
             cursor: isDragging ? 'grabbing' : 'grab'
           }}
         >
-          {/* Floor/Background */}
-          <rect x="0" y="0" width="720" height="450" fill="#fafafa" />
+          {/* Imported SVG Background Map */}
+          {svgContent ? (
+            <g dangerouslySetInnerHTML={{ __html: svgContent }} />
+          ) : (
+            <>
+              {/* Default Floor/Background */}
+              <rect x="0" y="0" width={floorMap?.width || 720} height={floorMap?.height || 450} fill="#fafafa" />
           
           {/* Hallways */}
           {/* Vertical hallway - left */}
@@ -165,9 +197,11 @@ export function SchoolMap({
           <rect x="210" y="180" width="230" height="40" fill="#e5e7eb" stroke="#d1d5db" strokeWidth="2" />
           <rect x="210" y="290" width="230" height="40" fill="#e5e7eb" stroke="#d1d5db" strokeWidth="2" />
           
-          {/* Entrance hallway */}
-          <rect x="340" y="360" width="40" height="60" fill="#e5e7eb" stroke="#d1d5db" strokeWidth="2" />
-          
+              {/* Entrance hallway */}
+              <rect x="340" y="360" width="40" height="60" fill="#e5e7eb" stroke="#d1d5db" strokeWidth="2" />
+            </>
+          )}
+
           {/* Path visualization */}
           {path.map((segment, index) => (
             <line
@@ -203,7 +237,7 @@ export function SchoolMap({
           })}
           
           {/* Rooms */}
-          {rooms.map(room => {
+          {filteredRooms.map(room => {
             const isSelected = selectedRoom?.id === room.id;
             const isHighlighted = highlightedRooms.includes(room.id);
             
