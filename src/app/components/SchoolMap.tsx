@@ -15,6 +15,11 @@ interface SchoolMapProps {
   currentBuilding: string;
   currentFloor: number;
   floorMap?: FloorMap;
+  nodeEditorMode?: boolean;
+  onNodeAdd?: (x: number, y: number) => void;
+  onNodeMove?: (nodeId: string, x: number, y: number) => void;
+  onNodeSelect?: (nodeId: string) => void;
+  selectedNodeId?: string | null;
 }
 
 export function SchoolMap({
@@ -30,13 +35,21 @@ export function SchoolMap({
   onPositionChange,
   currentBuilding,
   currentFloor,
-  floorMap
+  floorMap,
+  nodeEditorMode = false,
+  onNodeAdd,
+  onNodeMove,
+  onNodeSelect,
+  selectedNodeId
 }: SchoolMapProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const lastTouchDistance = useRef<number | null>(null);
   const [svgContent, setSvgContent] = useState<string | null>(null);
+  const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null);
+  const [nodeDragStart, setNodeDragStart] = useState<{ x: number; y: number } | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
 
   // Filter rooms and nodes by current building and floor
   const filteredRooms = rooms.filter(
@@ -131,11 +144,68 @@ export function SchoolMap({
 
   // Handle room click - prevent if dragging
   const handleRoomClickInternal = (room: Room, e: React.MouseEvent) => {
-    if (isDragging) {
+    if (isDragging || nodeEditorMode) {
       e.stopPropagation();
       return;
     }
     onRoomClick(room);
+  };
+
+  // Handle map click in node editor mode
+  const handleMapClick = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (!nodeEditorMode || !onNodeAdd || !svgRef.current) return;
+    if (isDragging || draggingNodeId) return;
+
+    const svg = svgRef.current;
+    const rect = svg.getBoundingClientRect();
+    const viewBox = svg.viewBox.baseVal;
+
+    // Calculate click position in SVG coordinates
+    const scaleX = viewBox.width / rect.width;
+    const scaleY = viewBox.height / rect.height;
+
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+
+    onNodeAdd(Math.round(x), Math.round(y));
+  };
+
+  // Handle node drag start
+  const handleNodeMouseDown = (nodeId: string, e: React.MouseEvent) => {
+    if (!nodeEditorMode || !onNodeMove) return;
+    e.stopPropagation();
+
+    setDraggingNodeId(nodeId);
+    const node = filteredNodes.find(n => n.id === nodeId);
+    if (node) {
+      setNodeDragStart({ x: node.x, y: node.y });
+    }
+    if (onNodeSelect) {
+      onNodeSelect(nodeId);
+    }
+  };
+
+  // Handle node drag
+  const handleNodeDrag = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (!draggingNodeId || !onNodeMove || !svgRef.current || !nodeDragStart) return;
+
+    const svg = svgRef.current;
+    const rect = svg.getBoundingClientRect();
+    const viewBox = svg.viewBox.baseVal;
+
+    const scaleX = viewBox.width / rect.width;
+    const scaleY = viewBox.height / rect.height;
+
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+
+    onNodeMove(draggingNodeId, Math.round(x), Math.round(y));
+  };
+
+  // Handle node drag end
+  const handleNodeMouseUp = () => {
+    setDraggingNodeId(null);
+    setNodeDragStart(null);
   };
 
   useEffect(() => {
@@ -169,13 +239,17 @@ export function SchoolMap({
         }}
       >
         <svg
+          ref={svgRef}
           viewBox={floorMap?.viewBox || "0 0 720 450"}
           className="w-full h-full"
           style={{
             width: `${floorMap?.width || 720}px`,
             height: `${floorMap?.height || 450}px`,
-            cursor: isDragging ? 'grabbing' : 'grab'
+            cursor: nodeEditorMode ? 'crosshair' : (isDragging ? 'grabbing' : 'grab')
           }}
+          onClick={handleMapClick}
+          onMouseMove={draggingNodeId ? handleNodeDrag : undefined}
+          onMouseUp={handleNodeMouseUp}
         >
           {/* Imported SVG Background Map */}
           {svgContent ? (
@@ -346,6 +420,97 @@ export function SchoolMap({
               ENTRY
             </text>
           </g>
+
+          {/* Node Editor Visualization */}
+          {nodeEditorMode && filteredNodes.map(node => {
+            const isSelected = selectedNodeId === node.id;
+            const isRoom = !!node.roomId;
+
+            return (
+              <g
+                key={node.id}
+                onMouseDown={(e) => handleNodeMouseDown(node.id, e as any)}
+                className="cursor-move"
+              >
+                {/* Node circle */}
+                <circle
+                  cx={node.x}
+                  cy={node.y}
+                  r={isSelected ? 12 : 10}
+                  fill={isRoom ? '#4F46E5' : '#A82227'}
+                  stroke={isSelected ? '#FCD34D' : 'white'}
+                  strokeWidth={isSelected ? 4 : 2}
+                  opacity={0.9}
+                  className="transition-all"
+                />
+
+                {/* Node ID label */}
+                <text
+                  x={node.x}
+                  y={node.y - 18}
+                  textAnchor="middle"
+                  fill="#1f2937"
+                  fontSize="10"
+                  fontWeight="bold"
+                  pointerEvents="none"
+                  className="select-none"
+                >
+                  {node.id}
+                </text>
+
+                {/* Coordinates label */}
+                <text
+                  x={node.x}
+                  y={node.y + 25}
+                  textAnchor="middle"
+                  fill="#6b7280"
+                  fontSize="8"
+                  pointerEvents="none"
+                  className="select-none"
+                >
+                  ({Math.round(node.x)}, {Math.round(node.y)})
+                </text>
+
+                {/* Crosshair for precision */}
+                {isSelected && (
+                  <>
+                    <line
+                      x1={node.x - 15}
+                      y1={node.y}
+                      x2={node.x - 5}
+                      y2={node.y}
+                      stroke="#FCD34D"
+                      strokeWidth="2"
+                    />
+                    <line
+                      x1={node.x + 5}
+                      y1={node.y}
+                      x2={node.x + 15}
+                      y2={node.y}
+                      stroke="#FCD34D"
+                      strokeWidth="2"
+                    />
+                    <line
+                      x1={node.x}
+                      y1={node.y - 15}
+                      x2={node.x}
+                      y2={node.y - 5}
+                      stroke="#FCD34D"
+                      strokeWidth="2"
+                    />
+                    <line
+                      x1={node.x}
+                      y1={node.y + 5}
+                      x2={node.x}
+                      y2={node.y + 15}
+                      stroke="#FCD34D"
+                      strokeWidth="2"
+                    />
+                  </>
+                )}
+              </g>
+            );
+          })}
         </svg>
       </div>
     </div>

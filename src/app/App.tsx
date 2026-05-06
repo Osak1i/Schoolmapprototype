@@ -6,9 +6,10 @@ import { BottomControls } from './components/BottomControls';
 import { RoomSelector } from './components/RoomSelector';
 import { MenuDrawer } from './components/MenuDrawer';
 import { MapControls } from './components/MapControls';
+import { NodeEditor } from './components/NodeEditor';
 import { rooms, nodes, edges } from './data/schoolData';
 import { getFloorMap } from './data/floorMaps';
-import { Room, PathSegment } from './types/map';
+import { Room, PathSegment, Node } from './types/map';
 import { findShortestPath } from './utils/pathfinding';
 import { getTranslation } from './utils/translations';
 
@@ -39,6 +40,10 @@ function App() {
   const [mapScale, setMapScale] = useState(1);
   const [mapPosition, setMapPosition] = useState({ x: 0, y: 0 });
   const [language, setLanguage] = useState<'en' | 'lv'>('en');
+  const [nodeEditorMode, setNodeEditorMode] = useState(false);
+  const [editableNodes, setEditableNodes] = useState<Node[]>(nodes);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [nodeCounter, setNodeCounter] = useState(1);
 
   const handleRoomClick = (room: Room) => {
     setSelectedRoom(room);
@@ -65,19 +70,33 @@ function App() {
     const destNodeId = rooms.find(r => r.id === destination)?.nodeId;
 
     if (startNodeId && destNodeId) {
-      const shortestPath = findShortestPath(startNodeId, destNodeId, nodes, edges);
+      const shortestPath = findShortestPath(startNodeId, destNodeId, editableNodes, edges);
       setPath(shortestPath);
     }
   };
 
   const handleStartChange = (roomId: string) => {
     setStartRoom(roomId);
-    calculatePath(roomId, destinationRoom);
+    if (destinationRoom) {
+      const startNodeId = roomId === 'entrance' ? 'entrance' : rooms.find(r => r.id === roomId)?.nodeId;
+      const destNodeId = rooms.find(r => r.id === destinationRoom)?.nodeId;
+      if (startNodeId && destNodeId) {
+        const shortestPath = findShortestPath(startNodeId, destNodeId, editableNodes, edges);
+        setPath(shortestPath);
+      }
+    }
   };
 
   const handleDestinationChange = (roomId: string) => {
     setDestinationRoom(roomId);
-    calculatePath(startRoom, roomId);
+    if (startRoom) {
+      const startNodeId = startRoom === 'entrance' ? 'entrance' : rooms.find(r => r.id === startRoom)?.nodeId;
+      const destNodeId = rooms.find(r => r.id === roomId)?.nodeId;
+      if (startNodeId && destNodeId) {
+        const shortestPath = findShortestPath(startNodeId, destNodeId, editableNodes, edges);
+        setPath(shortestPath);
+      }
+    }
   };
 
   const handleClearPath = () => {
@@ -140,6 +159,33 @@ function App() {
     setMapPosition({ x: 0, y: 0 });
   };
 
+  const handleNodeAdd = (x: number, y: number) => {
+    const newNode: Node = {
+      id: `node-${currentBuilding}-f${currentFloor}-${nodeCounter}`,
+      x,
+      y,
+      building: currentBuilding,
+      floor: currentFloor
+    };
+    setEditableNodes([...editableNodes, newNode]);
+    setNodeCounter(nodeCounter + 1);
+  };
+
+  const handleNodeMove = (nodeId: string, x: number, y: number) => {
+    setEditableNodes(editableNodes.map(node =>
+      node.id === nodeId ? { ...node, x, y } : node
+    ));
+  };
+
+  const handleNodeSelect = (nodeId: string) => {
+    setSelectedNodeId(nodeId);
+  };
+
+  const handleToggleNodeEditor = () => {
+    setNodeEditorMode(!nodeEditorMode);
+    setSelectedNodeId(null);
+  };
+
   // Get highlighted rooms (start and destination)
   const highlightedRooms: string[] = [];
   if (startRoom && startRoom !== 'entrance') {
@@ -166,7 +212,7 @@ function App() {
       <div className="absolute inset-0 pt-20 pb-40">
         <SchoolMap
           rooms={rooms}
-          nodes={nodes}
+          nodes={editableNodes}
           selectedRoom={selectedRoom}
           onRoomClick={handleRoomClick}
           path={path}
@@ -178,6 +224,11 @@ function App() {
           currentBuilding={currentBuilding}
           currentFloor={currentFloor}
           floorMap={currentFloorMap}
+          nodeEditorMode={nodeEditorMode}
+          onNodeAdd={handleNodeAdd}
+          onNodeMove={handleNodeMove}
+          onNodeSelect={handleNodeSelect}
+          selectedNodeId={selectedNodeId}
         />
       </div>
 
@@ -190,6 +241,7 @@ function App() {
         onStartClick={handleStartClick}
         onDestinationClick={handleDestinationClick}
         onClearPath={handleClearPath}
+        language={language}
       />
 
       {/* Room Info Panel (slides from bottom) */}
@@ -234,7 +286,32 @@ function App() {
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
         onZoomReset={handleZoomReset}
+        language={language}
       />
+
+      {/* Node Editor Toggle Button */}
+      <button
+        onClick={handleToggleNodeEditor}
+        className={`absolute top-24 right-1/2 transform translate-x-1/2 z-20 px-4 py-2 rounded-xl shadow-lg font-bold transition-all ${
+          nodeEditorMode
+            ? 'bg-[#A82227] text-white border-2 border-[#8B1C20] animate-pulse'
+            : 'bg-white text-[#A82227] border-2 border-[#A5968A] hover:bg-[#FCE8E9]'
+        }`}
+      >
+        {nodeEditorMode ? '✓ Editor Active' : 'Node Editor'}
+      </button>
+
+      {/* Node Editor Panel */}
+      {nodeEditorMode && (
+        <NodeEditor
+          nodes={editableNodes}
+          onNodesChange={setEditableNodes}
+          currentBuilding={currentBuilding}
+          currentFloor={currentFloor}
+          language={language}
+          onClose={() => setNodeEditorMode(false)}
+        />
+      )}
     </div>
   );
 }
